@@ -1,15 +1,18 @@
-import Link from 'next/link'
-import Layout from '../components/Layout'
+import styled from "styled-components"
+import Main from "../components/Main/Main"
 
-const IndexPage = () => (
-  <Layout title="Home | Next.js + TypeScript Example">
-    <h1>Hello Next.js 👋</h1>
-    <p>
-      <Link href="/about">
-        <a>About</a>
-      </Link>
-    </p>
-  </Layout>
-)
+const MyContainer = styled.div`
+  width: 1170px;
+`
+
+const IndexPage = () => {
+  return (
+    <>
+      <MyContainer>
+        <Main />
+      </MyContainer>
+    </>
+  )
+}
 
 export default IndexPage
