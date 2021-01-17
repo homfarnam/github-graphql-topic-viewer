@@ -1,9 +1,10 @@
 import Link from "next/link"
 import * as React from "react"
+import Skeleton from "react-loading-skeleton"
 import styled from "styled-components"
 
 interface TableProps {
-  data: any
+  edges: any
 }
 
 const TableCols = styled.thead`
@@ -12,8 +13,33 @@ const TableCols = styled.thead`
   color: white;
 `
 
-export const Table: React.FC<TableProps> = ({ data }) => {
+// Table cell data component
+const TableCell = ({ repo }: any) => {
   return (
+    <tr>
+      <td>
+        <Link href={repo.node.url}>{repo.node.name}</Link>
+      </td>
+      <td>{repo.node.stargazerCount}</td>
+      <td>{repo.node.forkCount}</td>
+    </tr>
+  )
+}
+
+// Table body data component
+const Tbody = ({ edges = [] }) => {
+  return (
+    <tbody>
+      {edges.map((repo: { node: { id: number } }) => (
+        <TableCell repo={repo} key={repo.node.id} />
+      ))}
+    </tbody>
+  )
+}
+
+export const Table: React.FC<TableProps> = ({ edges = [] }) => {
+  return (
+    // Table columns title
     <table>
       <TableCols>
         <tr>
@@ -22,30 +48,14 @@ export const Table: React.FC<TableProps> = ({ data }) => {
           <th>Forks</th>
         </tr>
       </TableCols>
-      <tbody>
-        {data.edges.length > 0 &&
-          data.edges.map(
-            (repo: {
-              node: {
-                id: number
-                name: string
-                stargazerCount: number
-                forkCount: number
-                url: string
-              }
-            }) => {
-              return (
-                <tr key={repo.node.id}>
-                  <td>
-                    <Link href={repo.node.url}>{repo.node.name}</Link>
-                  </td>
-                  <td>{repo.node.stargazerCount}</td>
-                  <td>{repo.node.forkCount}</td>
-                </tr>
-              )
-            }
-          )}
-      </tbody>
+      {edges.length ? (
+        <Tbody edges={edges} />
+      ) : (
+        // Skeleton loading  before fetching data
+        <tr>
+          <Skeleton count={15} />
+        </tr>
+      )}
     </table>
   )
 }
