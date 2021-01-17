@@ -8,6 +8,7 @@ const MyContainer = styled.div`
 const IndexPage = () => {
   return (
     <>
+      {/* App Container */}
       <MyContainer>
         <Main />
       </MyContainer>
