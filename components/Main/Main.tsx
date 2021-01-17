@@ -1,9 +1,8 @@
 import { useQuery } from "@apollo/client"
-import Link from "next/link"
-import { useState } from "react"
+import { Button, CircularProgress, TextField } from "@material-ui/core"
+import { useEffect, useState } from "react"
 import styled from "styled-components"
 import { REACT_REPOS } from "../../Queries/queries"
-import { Button, CircularProgress, TextField } from "@material-ui/core"
 import Table from "../Table/Table"
 
 interface TableProps {}
@@ -14,31 +13,34 @@ const SpinnerContainer = styled.div`
   align-items: center;
   margin-top: "1rem";
   margin: 0 auto;
+  width: 50px;
 `
 
 export const Main: React.FC<TableProps> = () => {
   const [Page, setPage] = useState<string>()
+  const [Topic, setTopic] = useState<string>("react")
 
-  const { data, loading, error } = useQuery(REACT_REPOS, {
+  // Get datas from github graphql api with schema
+  const { data = {}, loading, error } = useQuery(REACT_REPOS, {
     variables: {
-      search_term: "topic:react sort:stars-desc",
+      search_term: `topic:${Topic} sort:stars-desc`,
       after: Page,
     },
   })
 
-  if (loading) {
-    return (
-      <SpinnerContainer>
-        <CircularProgress />
-      </SpinnerContainer>
-    )
-  }
-  if (error) {
-    return <div>{error}</div>
-  }
+  const { search = { edges: [] } } = data
 
-  if (!data.search) {
-    return <p>There are no data!</p>
+  const [repoList, setRepoList] = useState(search.edges)
+  useEffect(() => {
+    if (!loading) {
+      setRepoList(search.edges)
+    }
+  }, [loading])
+
+  // Search Input onChange Handler
+  const topicOnChange = (e: any) => {
+    e.preventDefault()
+    setTopic(e.target.value)
   }
 
   return (
@@ -57,6 +59,8 @@ export const Main: React.FC<TableProps> = () => {
             label="Search field"
             type="search"
             color="primary"
+            onChange={topicOnChange}
+            value={Topic}
           />
           <Button
             variant="contained"
@@ -66,7 +70,15 @@ export const Main: React.FC<TableProps> = () => {
             Next Page
           </Button>
         </div>
-        {data ? <Table data={data.search} /> : ""}
+        {loading ? (
+          <SpinnerContainer>
+            <CircularProgress />
+          </SpinnerContainer>
+        ) : null}
+        {error ? <p>Error</p> : null}
+
+        {/* Display Table Component */}
+        <Table edges={repoList} />
       </div>
     </>
   )
